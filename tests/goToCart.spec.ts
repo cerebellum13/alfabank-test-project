@@ -1,68 +1,64 @@
 import {expect, test} from "@playwright/test";
+import {cart, notes} from "../components";
 
 test('case 1: go to empty cart', async ({ page }) => {
-    // Given cart is empty
+    await cart.popUpWindow(page);
 
-    // When click to cart icon
-    // Then cart window pops up
+    await cart.goToCart(page);
 
-    // When click "Go to cart" button
-    // Then empty cart window open up
-    expect(true).toBe(true);
+    // todo: move all 'expects' to test layer
+    await cart.cartPageIsOpened(page);
 });
 
 test('case 2: go to cart with 1 non-promotional item', async ({ page }) => {
-    // Given cart is empty
+    await notes.addNoteToCard(page, false);
+    await expect(await cart.getCurrentItemsCount(page)).toEqual(1);
 
-    // When add one item to cart without discount
-    // Then number '1' is displayed next to the basket
+    await cart.popUpWindow(page);
+    await cart.verifyContent(page);
 
-    // When click to cart icon
-    // Then cart window is opened, indicating the price, product name, and total amount
+    await cart.goToCart(page);
 
-    // When click "Go to cart" button
-    // Then return to cart page
-    expect(true).toBe(true);
+    await cart.cartPageIsOpened(page);
 });
 
 test('case 3: go to cart with 1 promotional item', async ({ page }) => {
-    // Given cart is empty
+    await notes.addNoteToCard(page, true);
+    await expect(await cart.getCurrentItemsCount(page)).toEqual(1);
 
-    // When add one discounted item to cart
-    // Then number '1' is displayed next to the basket
+    await cart.popUpWindow(page);
+    await cart.verifyContent(page);
 
-    // When click to cart icon
-    // Then cart window is opened, indicating the price, product name, and total amount
+    await cart.goToCart(page);
 
-    // When click "Go to cart" button
-    // Then return to cart page
-    expect(true).toBe(true);
+    await cart.cartPageIsOpened(page);
 });
 
 test('case 4: go to cart with 9 different items', async ({ page }) => {
+    await notes.addNoteToCard(page, true);
     // Given 1 promotional item in the cart
 
-    // When add 8 more different products to cart
-    // Then number '9' is displayed next to the cart icon
+    // todo: needed exactly different items
+    await notes.addNoteToCard(page, false, 8, false);
+    await expect(await cart.getCurrentItemsCount(page)).toEqual(9);
 
-    // When click to cart icon
-    // Then cart window is opened, indicating the price, product name, and total amount
+    await cart.popUpWindow(page);
+    await cart.verifyContent(page);
 
-    // When click "Go to cart" button
-    // Then return to cart page
-    expect(true).toBe(true);
+    await cart.goToCart(page);
+
+    await cart.cartPageIsOpened(page);
 });
 
 test('case 5: go to cart with 9 promotional items of the same name', async ({ page }) => {
-    // Given cart is empty
+    await notes.addNoteToCard(page, true, 9, true);
+    await expect(await cart.getCurrentItemsCount(page)).toEqual(9);
 
-    // When add to cart 9 products of the same name at a discount
-    // Then number '9' is displayed next to the cart icon
+    await cart.popUpWindow(page);
+    // todo: add added notes json
+    await cart.verifyContent(page);
 
-    // When click to cart icon
-    // Then cart window is opened, indicating the price, product name, and total amount
+    await cart.goToCart(page);
 
-    // When click "Go to cart" button
-    // Then return to cart page
-    expect(true).toBe(true);
+    await cart.cartPageIsOpened(page);
 });

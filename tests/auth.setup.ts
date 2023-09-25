@@ -22,9 +22,9 @@ setup('authorization', async ({ page }) => {
     await expect(await page.title()).toEqual(mainPageTitle);
     await expect(await userInfo.getUserName(page)).toEqual(username.toUpperCase());
 
-    if (await cart.getCurrentItemsCount(page) !== "0") {
+    if (await cart.getCurrentItemsCount(page) !== 0) {
         await cart.cleanAll(page);
     }
 
-    await expect(await cart.getCurrentItemsCount(page)).toEqual("0");
+    await expect(await cart.getCurrentItemsCount(page)).toEqual(0);
 });
