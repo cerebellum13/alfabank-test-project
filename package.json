@@ -1,0 +1,23 @@
+{
+  "name": "alfabank-test-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cerebellum13/alfabank-test-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cerebellum13/alfabank-test-project/issues"
+  },
+  "homepage": "https://github.com/cerebellum13/alfabank-test-project#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.38.1",
+    "@types/node": "^20.6.5",
+    "allure-playwright": "^2.8.1"
+  }
+}
