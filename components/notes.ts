@@ -1,14 +1,12 @@
-import {Page} from "@playwright/test";
+import { type Page } from "@playwright/test"
 
-export const elements = {
-
-} as const;
+export const elements = {} as const
 
 export async function addNoteToCard(
-    page: Page,
-    withDiscount: boolean = false,
-    numberOfElements: number = 1,
-    sameItems: boolean = false
-) {
+	page: Page,
+	withDiscount: boolean = false,
+	numberOfElements: number = 1,
+	sameItems: boolean = false
+): Promise<void> {
 
 }
