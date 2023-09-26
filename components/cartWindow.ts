@@ -2,6 +2,7 @@ import { expect, type Page } from "@playwright/test"
 import { ProductInfo } from "../components/products";
 import { Pages, pageTitleIsValid } from "../utils/routes";
 import { getNavElementCurrentState, NavElementState, waitForNavElementState } from "../utils/state";
+import { WaitTime } from "../utils/types";
 
 export const selectors = {
 	container: () => "#basketContainer",
@@ -33,20 +34,34 @@ export async function open(page: Page) {
 }
 
 export async function goToCartPage(page: Page) {
+	if(await getNavElementCurrentState(elements.icon(page)) === NavElementState.Closed) {
+		await open(page);
+	}
+	
 	await elements.goToCartButton(page).click();
 	
 	await pageTitleIsValid(page, Pages.Basket);
 }
 
 export async function cleanAllProducts(page: Page) {
+	if(await getNavElementCurrentState(elements.icon(page)) === NavElementState.Closed) {
+		await open(page);
+	}
+	
 	await elements.cleanAllButton(page).click();
 	
 	await waitForNavElementState(page, elements.icon(page), NavElementState.Closed);
-	await expect(getCurrentProductsCount(page)).toEqual(0);
+	await verifyCurrentProductsCount(page, 0);
 }
 
-export async function getCurrentProductsCount(page: Page): Promise<number> {
-	return Number(await elements.productCount(page).innerText());
+export async function getCurrentProductsCount(page: Page) {
+	return Number(await (await elements.productCount(page)).innerText());
+}
+
+export async function verifyCurrentProductsCount(page: Page, expectedCount: number) {
+	await expect(await elements.productCount(page)).toContainText(expectedCount.toString(), {
+		timeout: WaitTime.TwoSeconds,
+	});
 }
 
 export async function getTotalCartAmount(page: Page): Promise<number> {

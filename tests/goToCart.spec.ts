@@ -1,6 +1,21 @@
 import { test } from "@playwright/test";
-import { cartWindow } from "../components";
-import { Pages, pageTitleIsValid } from "../utils/routes";
+import { cartWindow, loginForm, products } from "../components";
+import { openPage, Pages, pageTitleIsValid } from "../utils/routes";
+import { credentials } from "../utils/user";
+
+test.beforeEach(async ({page}) => {
+	await openPage(page, Pages.Login);
+	
+	await loginForm.signIn(page, credentials);
+	
+	await page.waitForSelector(products.selectors.list());
+	
+	if (await cartWindow.getCurrentProductsCount(page) !== 0) {
+		await cartWindow.cleanAllProducts(page);
+	}
+	
+	await cartWindow.verifyCurrentProductsCount(page, 0);
+});
 
 test("case 1: go to empty cart", async ({page}) => {
 	await cartWindow.open(page);

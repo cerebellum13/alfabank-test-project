@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import { WaitTime } from "../utils/types";
 
 export enum NavElementState {
@@ -11,9 +11,9 @@ export async function getNavElementCurrentState(element: Locator): Promise<NavEl
 }
 
 export async function waitForNavElementState(page: Page, element: Locator, expectedState: NavElementState){
-	await page.waitForFunction(async () => {
-		return await getNavElementCurrentState(element) === expectedState;
-	}, {
-		timeout: WaitTime.TwoSeconds,
+	await expect(element, {
+		message: `Element ${await element.innerText()} didn't match ${expectedState ? "Opened" : "Closed"} state`
+	}).toHaveAttribute("aria-expanded", expectedState, {
+		timeout: WaitTime.ThreeSeconds
 	});
 }
