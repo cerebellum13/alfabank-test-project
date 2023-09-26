@@ -53,7 +53,9 @@ async function getDiscountProductIndexes(page: Page) {
 	let indexes = [];
 	
 	for (let i = 0; i < products.length; i++) {
-		if (await products[i].locator(selectors.itemDiscount())) indexes.push(i);
+		const itemDiscount = await products[i].locator(selectors.itemDiscount());
+		
+		if (await itemDiscount.innerText()) indexes.push(i);
 	}
 	
 	return indexes;
@@ -64,7 +66,8 @@ async function getNonDiscountProductIndexes(page: Page) {
 	let indexes = [];
 	
 	for (let i = 0; i < products.length; i++) {
-		if (!(await products[i].locator(selectors.itemDiscount()))) indexes.push(i);
+		const itemDiscount = await products[i].locator(selectors.itemDiscount());
+		if (!(await itemDiscount.innerText())) indexes.push(i);
 	}
 	
 	return indexes;
@@ -79,7 +82,6 @@ async function getRandomNumber(max: number) {
 }
 
 async function getRandomIndex(page: Page, searchInAllProducts: boolean, withDiscount: boolean) {
-	console.log(searchInAllProducts + " " + withDiscount);
 	const indexes =
 		searchInAllProducts ? await getProductListCountOnPage(page) :
 			withDiscount ? (await getDiscountProductIndexes(page)).length :
@@ -99,7 +101,6 @@ async function getProductByParams(page: Page, index: number, searchInAllProducts
 async function getRandomProduct(page: Page, searchInAllProducts: boolean = false, withDiscount: boolean = false) {
 	if (await getProductListCountOnPage(page) > 0) {
 		const randomProductIndex = await getRandomIndex(page, searchInAllProducts, withDiscount);
-		console.log(randomProductIndex);
 		
 		const product = await getProductByParams(page, randomProductIndex, searchInAllProducts, withDiscount);
 		
