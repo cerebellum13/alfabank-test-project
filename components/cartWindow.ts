@@ -1,5 +1,5 @@
 import { expect, type Page } from "@playwright/test"
-import { ProductInfo } from "../components/products";
+import { products } from "../components";
 import { Pages, pageTitleIsValid } from "../utils/routes";
 import { getNavElementCurrentState, NavElementState, waitForNavElementState } from "../utils/state";
 import { WaitTime } from "../utils/types";
@@ -27,7 +27,7 @@ export const elements = {
 	cleanAllButton: (page: Page) => page.locator(selectors.cleanAllButton()),
 } as const;
 
-export async function open(page: Page) {
+async function open(page: Page) {
 	await elements.icon(page).click();
 	
 	await waitForNavElementState(page, elements.icon(page), NavElementState.Opened);
@@ -86,7 +86,7 @@ export async function getProductInCartList(page: Page, name: string) {
 	return list.locator(selectors.cartProduct(name));
 }
 
-export async function getProductInfoInCartList(page: Page, name: string): Promise<ProductInfo> {
+export async function getProductInfoInCartList(page: Page, name: string): Promise<products.ProductInfo> {
 	const item = await getProductInCartList(page, name);
 	// second element of inner text is price
 	const price = Number((await item.locator(selectors.productPrice()).innerText()).split(" ")[2]);
@@ -96,5 +96,15 @@ export async function getProductInfoInCartList(page: Page, name: string): Promis
 		name: name,
 		price: price,
 		amount: amount,
-	} as ProductInfo;
+	} as products.ProductInfo;
+}
+
+export async function verifyContent(page: Page) {
+	const productsInfo = await products.getBoughtProductsInfo(page);
+	
+	for (const productsInfoElement of productsInfo) {
+		const actualInfo = await getProductInfoInCartList(page, productsInfoElement.name);
+		
+		await expect(actualInfo).toEqual(actualInfo);
+	}
 }

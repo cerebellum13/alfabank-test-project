@@ -2,6 +2,9 @@ import { test } from "@playwright/test";
 import { cartWindow, loginForm, products } from "../components";
 import { openPage, Pages, pageTitleIsValid } from "../utils/routes";
 import { credentials } from "../utils/user";
+import * as fs from "fs";
+
+export const testStorageFile = '.test/storage.json';
 
 test.beforeEach(async ({page}) => {
 	await openPage(page, Pages.Login);
@@ -18,25 +21,20 @@ test.beforeEach(async ({page}) => {
 });
 
 test("case 1: go to empty cart", async ({page}) => {
-	await cartWindow.open(page);
+	await cartWindow.goToCartPage(page);
+
+	await pageTitleIsValid(page, Pages.Basket);
+});
+
+test("case 2: go to cart with 1 non-promotional item", async ({page}) => {
+	await products.buyProduct(page);
+	await cartWindow.verifyContent(page);
 	
 	await cartWindow.goToCartPage(page);
 	
 	await pageTitleIsValid(page, Pages.Basket);
 });
 
-// test("case 2: go to cart with 1 non-promotional item", async ({page}) => {
-// 	await products.addProductToCard(page, false);
-// 	await expect(await cart.getCurrentItemsCount(page)).toEqual(1);
-//
-// 	await cart.popUpWindow(page);
-// 	await cart.verifyContent(page);
-//
-// 	await cart.goToCart(page);
-//
-// 	await cart.cartPageIsOpened(page);
-// });
-//
 // test("case 3: go to cart with 1 promotional item", async ({page}) => {
 // 	await products.addProductToCard(page, true);
 // 	await expect(await cart.getCurrentItemsCount(page)).toEqual(1);
@@ -77,3 +75,7 @@ test("case 1: go to empty cart", async ({page}) => {
 //
 // 	await cart.cartPageIsOpened(page);
 // });
+
+test.afterAll(async () => {
+	fs.unlinkSync(testStorageFile);
+});

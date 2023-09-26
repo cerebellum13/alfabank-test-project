@@ -21,7 +21,9 @@ export const titles = {
 } as const;
 
 export async function pageTitleIsValid(page: Page, url: Pages) {
-	await expect(page).toHaveTitle(titles[url](), {
+	await expect(page, {
+		message: `Page title is invalid. Expected: ${titles[url]()}, but received ${await page.title()}`
+	}).toHaveTitle(titles[url](), {
 		timeout: WaitTime.FiveSeconds,
 	});
 }
