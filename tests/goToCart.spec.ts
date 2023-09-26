@@ -36,6 +36,8 @@ test("case 2: go to cart with 1 non-promotional item", async ({page}) => {
 });
 
 test("case 3: go to cart with 1 promotional item", async ({page}) => {
+	// todo: searchInAllProjects is not valid if we find discount or non-discount products
+	// need to set withDiscount as optional param
 	await products.buyProduct(page, false, true);
 	await cartWindow.verifyContent(page);
 
@@ -44,34 +46,36 @@ test("case 3: go to cart with 1 promotional item", async ({page}) => {
 	await pageTitleIsValid(page, Pages.Basket);
 });
 
-// test("case 4: go to cart with 9 different items", async ({page}) => {
-// 	await products.addProductToCard(page, true);
-// 	// Given 1 promotional item in the cart
-//
-// 	// todo: needed exactly different items
-// 	await products.addProductToCard(page, false, 8, false);
-// 	await expect(await cart.getCurrentItemsCount(page)).toEqual(9);
-//
-// 	await cart.popUpWindow(page);
-// 	await cart.verifyContent(page);
-//
-// 	await cart.goToCart(page);
-//
-// 	await cart.cartPageIsOpened(page);
-// });
-//
-// test("case 5: go to cart with 9 promotional items of the same name", async ({page}) => {
-// 	await products.addProductToCard(page, true, 9, true);
-// 	await expect(await cart.getCurrentItemsCount(page)).toEqual(9);
-//
-// 	await cart.popUpWindow(page);
-// 	// todo: add added notes json
-// 	await cart.verifyContent(page);
-//
-// 	await cart.goToCart(page);
-//
-// 	await cart.cartPageIsOpened(page);
-// });
+test("case 4: go to cart with 9 different items", async ({page}) => {
+	await products.buyProduct(page, false, true);
+
+	await products.buyProduct(page, true);
+	await products.buyProduct(page, true);
+	await products.buyProduct(page, false, false);
+	await products.buyProduct(page, false, false);
+	await products.buyProduct(page, false, true);
+	await products.buyProduct(page, false, true);
+	await products.buyProduct(page, false, true);
+	await products.buyProduct(page, true);
+
+	await cartWindow.verifyContent(page);
+	// todo: verify total sum also
+
+	await cartWindow.goToCartPage(page);
+
+	await pageTitleIsValid(page, Pages.Basket);
+});
+
+test("case 5: go to cart with 9 promotional items of the same name", async ({page}) => {
+	// todo: name should be replaced with the same name
+	await products.buyProduct(page, false, true, 9, "Творческий беспорядок");
+	
+	await cartWindow.verifyContent(page);
+	
+	await cartWindow.goToCartPage(page);
+	
+	await pageTitleIsValid(page, Pages.Basket);
+});
 
 test.afterAll(async () => {
 	fs.unlinkSync(testStorageFile);
