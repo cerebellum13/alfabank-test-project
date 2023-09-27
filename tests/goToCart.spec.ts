@@ -27,7 +27,7 @@ test("case 1: go to empty cart", async ({page}) => {
 });
 
 test("case 2: go to cart with 1 non-promotional item", async ({page}) => {
-	await products.buyProduct(page, false, false);
+	await products.buyProduct(page, 1, false);
 	await cartWindow.verifyContent(page);
 
 	await cartWindow.goToCartPage(page);
@@ -36,9 +36,8 @@ test("case 2: go to cart with 1 non-promotional item", async ({page}) => {
 });
 
 test("case 3: go to cart with 1 promotional item", async ({page}) => {
-	// todo: searchInAllProjects is not valid if we find discount or non-discount products
 	// need to set withDiscount as optional param
-	await products.buyProduct(page, false, true);
+	await products.buyProduct(page, 1, true);
 	await cartWindow.verifyContent(page);
 
 	await cartWindow.goToCartPage(page);
@@ -47,28 +46,26 @@ test("case 3: go to cart with 1 promotional item", async ({page}) => {
 });
 
 test("case 4: go to cart with 9 different items", async ({page}) => {
-	await products.buyProduct(page, false, true);
+	await products.buyProduct(page, 1, true);
 
-	await products.buyProduct(page, true);
-	await products.buyProduct(page, true);
-	await products.buyProduct(page, false, false);
-	await products.buyProduct(page, false, false);
-	await products.buyProduct(page, false, true);
-	await products.buyProduct(page, false, true);
-	await products.buyProduct(page, false, true);
-	await products.buyProduct(page, true);
+	await products.buyProduct(page, 1);
+	await products.buyProduct(page, 1);
+	await products.buyProduct(page, 1, false);
+	await products.buyProduct(page, 1, false);
+	await products.buyProduct(page, 1, true);
+	await products.buyProduct(page, 1, true);
+	await products.buyProduct(page, 1, true);
+	await products.buyProduct(page, 1);
 
 	await cartWindow.verifyContent(page);
-	// todo: verify total sum also
 
 	await cartWindow.goToCartPage(page);
 
 	await pageTitleIsValid(page, Pages.Basket);
 });
 
-test("case 5: go to cart with 9 promotional items of the same name", async ({page}) => {
-	// todo: name should be replaced with the same name
-	await products.buyProduct(page, false, true, 9, "Творческий беспорядок");
+test("case 5: go to cart with 9 promotional items with the same name", async ({page}) => {
+	await products.buyProduct(page, 9, true);
 	
 	await cartWindow.verifyContent(page);
 	

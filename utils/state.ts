@@ -6,13 +6,13 @@ export enum NavElementState {
 	Closed = "false"
 }
 
-export async function getNavElementCurrentState(element: Locator): Promise<NavElementState> {
-	return await element.getAttribute("aria-expanded") as NavElementState;
+export async function getNavElementCurrentState(page: Page, selector: string): Promise<NavElementState> {
+	return await page.locator(selector).getAttribute("aria-expanded") as NavElementState;
 }
 
-export async function waitForNavElementState(page: Page, element: Locator, expectedState: NavElementState){
-	await expect(element, {
-		message: `Element ${await element.innerText()} didn't match ${expectedState ? "Opened" : "Closed"} state`
+export async function waitForNavElementState(page: Page, selector: string, expectedState: NavElementState){
+	await expect(await page.locator(selector), {
+		message: `Element ${await page.locator(selector).innerText()} didn't match ${expectedState ? "Opened" : "Closed"} state`
 	}).toHaveAttribute("aria-expanded", expectedState, {
 		timeout: WaitTime.ThreeSeconds
 	});

@@ -1,4 +1,4 @@
-import { Cookie, type Page } from "@playwright/test"
+import { type Page } from "@playwright/test"
 import * as fs from "fs";
 import { testStorageFile } from "../tests/goToCart.spec";
 import { cartWindow } from "../components";
@@ -19,16 +19,6 @@ export const selectors = {
 	itemEnterCount: () => `input[name='product-enter-count']`,
 	itemRemainingCount: () => `.product_count`,
 	itemBuyButton: () => `button.actionBuyProduct`
-} as const;
-
-export const elements = {
-	list: (page: Page) => page.locator(selectors.list()),
-	itemDiscount: (page: Page) => page.locator(selectors.itemDiscount()),
-	itemName: (page: Page) => page.locator(selectors.itemName()),
-	itemPrice: (page: Page) => page.locator(selectors.itemPrice()),
-	itemEnterCount: (page: Page) => page.locator(selectors.itemEnterCount()),
-	itemRemainingCount: (page: Page) => page.locator(selectors.itemRemainingCount()),
-	itemBuyButton: (page: Page) => page.locator(selectors.itemBuyButton())
 } as const;
 
 async function saveBoughtProductsInfo(page: Page, product: ProductInfo) {
@@ -54,7 +44,6 @@ async function getDiscountProductIndexes(page: Page) {
 	
 	for (let i = 0; i < products.length; i++) {
 		const itemDiscount = await products[i].locator(selectors.itemDiscount());
-		
 		if (await itemDiscount.innerText()) indexes.push(i);
 	}
 	
@@ -81,50 +70,58 @@ async function getRandomNumber(max: number) {
 	return Math.floor(Math.random() * max);
 }
 
-async function getRandomIndex(page: Page, searchInAllProducts: boolean, withDiscount: boolean) {
-	const indexes =
-		searchInAllProducts ? await getProductListCountOnPage(page) :
-			withDiscount ? (await getDiscountProductIndexes(page)).length :
-				(await getNonDiscountProductIndexes(page)).length;
+async function getRandomIndex(page: Page, withDiscount?: boolean) {
+	let maxNumber;
 	
-	return await getRandomNumber(indexes);
+	switch (withDiscount) {
+		case true: {
+			maxNumber = (await getDiscountProductIndexes(page)).length;
+			break;
+		}
+		case false: {
+			maxNumber = (await getNonDiscountProductIndexes(page)).length;
+			break;
+		}
+		default: {
+			maxNumber = await getProductListCountOnPage(page);
+			break;
+		}
+	}
+	
+	return await getRandomNumber(maxNumber);
 }
 
-async function getProductByParams(page: Page, index: number, searchInAllProducts: boolean, withDiscount: boolean) {
+async function getProductByParams(page: Page, index: number, withDiscount?: boolean) {
 	const productList = (await getAllProductsOnPage(page));
-	
-	return searchInAllProducts ? productList[index] :
-		withDiscount ? productList[(await getDiscountProductIndexes(page))[index]] :
-			productList[(await getNonDiscountProductIndexes(page))[index]];
+	switch (withDiscount) {
+		case true: {
+			return productList[(await getDiscountProductIndexes(page))[index]];
+		}
+		case false: {
+			return productList[(await getNonDiscountProductIndexes(page))[index]];
+		}
+		default: {
+			return productList[index];
+		}
+	}
 }
 
-async function getRandomProduct(page: Page, searchInAllProducts: boolean = false, withDiscount: boolean = false) {
+async function getRandomProduct(page: Page, withDiscount?: boolean) {
 	if (await getProductListCountOnPage(page) > 0) {
-		const randomProductIndex = await getRandomIndex(page, searchInAllProducts, withDiscount);
+		const randomProductIndex = await getRandomIndex(page, withDiscount);
 		
-		const product = await getProductByParams(page, randomProductIndex, searchInAllProducts, withDiscount);
+		const product = await getProductByParams(page, randomProductIndex, withDiscount);
 		
-		if (product === undefined) throw new DOMException(`Random product with index ${randomProductIndex} was not found.`);
+		if (product === undefined) throw new Error(`Random product with index ${randomProductIndex} was not found.`);
 		else return product;
 		
-	} else throw new DOMException("On page was not found any products.");
+	} else throw new Error("On page was not found any products.");
 }
 
-async function findProductByName(page: Page, name: string) {
-	const foundedProduct = (await getAllProductsOnPage(page)).find(async (el) =>
-		await (await el.locator(selectors.itemName()))!.innerText() === name
-	);
-	
-	if (foundedProduct === undefined) throw new DOMException(`Product with name ${name} was not found."`);
-	else return foundedProduct;
-}
-
-export async function buyProduct(page: Page, searchInAllProject: boolean = true, withDiscount: boolean = false, amount: number = 1, name?: string) {
+export async function buyProduct(page: Page, amount: number, withDiscount?: boolean) {
 	const productsCount = await cartWindow.getCurrentProductsCount(page);
 	
-	const product = name ?
-		await findProductByName(page, name) :
-		await getRandomProduct(page, searchInAllProject, withDiscount);
+	const product = await getRandomProduct(page, withDiscount);
 	
 	const itemName = await product.locator(selectors.itemName());
 	const itemPrice = await product.locator(selectors.itemPrice());
